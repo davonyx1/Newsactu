@@ -4,11 +4,12 @@ namespace App\Form;
 
 use App\Entity\Article;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class ArticleFormType extends AbstractType
 {
@@ -25,8 +26,11 @@ class ArticleFormType extends AbstractType
                 'label' => 'contenu'
             ])
             ->add('photo', FileType::class, [
-                'label' => 'photo,
-                '
+                'label' => 'photo',
+                'data_class' => null,
+                'attr' => [
+                    'data-default-file' => $options['photo']
+                ]
             ])
             ->add('submit', SubmitType::class, [
                 'label'=> 'valider',
@@ -34,7 +38,7 @@ class ArticleFormType extends AbstractType
                 'attr' => [
                     'class' => 'd-block mx-auto my-3 col-3 btn btn-success'
 
-                ]
+                ],
             ])
  
         ;
@@ -44,6 +48,8 @@ class ArticleFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Article::class,
+            'allow_file_upload' => true,
+            'photo' => null
         ]);
     }
 }
