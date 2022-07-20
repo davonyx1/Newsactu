@@ -9,10 +9,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/admin")
@@ -23,7 +26,20 @@ class AdminController extends AbstractController
      * @Route("/tableau-de-bord", name="show_dashboard", methods={"GET"})
      */
      public function showDashboard(EntityManagerInterface $entityManager): Response
-      {
+      { #2e façon de bloquer un accès à un user en fonction de son rôle
+        #(la 1er façon se trouve dans 'access controle' ->config/packages/security.yaml)
+        // Ce bloc de code vous permet de vérifier si le rôle du user est ADMIN, sinon cela lance une
+        // une erreur, qui est attrapée dans le catch et cela redirige avec un message dans une partie
+        // autorisée pour les différents rôles.
+       try
+       {
+            $this->denyAcessUnlessGranted('ROLE_ADMIN');
+
+        } catch(AccessDeniedException $exception) {
+            $this->addFlash('warning', 'cette partie du site est réservée aux admins');
+            return $this->redirectToRoute('default_home');
+        }
+
             $articles = $entityManager->getRepository(Article::class)->findBy(['deletedAt' => null]);
 
             return $this->render("admin/show_dashboard.html.twig", [
@@ -173,7 +189,48 @@ class AdminController extends AbstractController
 
         $this->addFlash('success', "L'article a bien été archivé.");
         return $this->redirectToRoute('show_dashboard');
-    }
+    }# end fucntion sofdelete
 
-    
+    /**
+     * @Route("/restaurer-un-article_{id}", name="restore_article", methods={"GET"})
+     */
+    public function restoreArticle(Article $article, EntityManagerInterface $entityManager): RedirectResponse
+    {
+        $article->setDeletedAt(null);
+
+        $entityManager->persist($article);
+        $entityManager->flush();
+
+        $this->addFlash('success', "l'article a bien été restauré");
+        return $this->redirectToRoute('show_dashboard');
+
+    }
+    /**
+     * @Route("/voir-les-articles-archives", name="show_trash", methods={"GET"})
+     */
+    public function showTrash(EntityManagerInterface $entityManager): Response
+    {
+        $archivedArticles = $entityManager->getRepository(Article::class)->findByTrash();
+
+        return $this->render("admin/trash/article_trash.html.twig", [
+            'archivedArticles' => $archivedArticles
+        ]);
+    }
+    /**
+     * @Route("/supprimer-un-article_{id}", name="hard_delete_article", methods={"GET"})
+     */
+    public function hardDeleteArticle(Article $article, EntityManagerInterface $entityManager): RedirectResponse
+    {   // suppr manuelle de la photo
+        $photo=$article->getPhoto();
+        // on utili la fonction native de PHP unlink() pour supprimer un fichier dans le filesystem
+        if($photo) {
+            unlink($this->getParameter('uploads_dir'). '/' . $photo);
+        }
+
+        $entityManager->remove($article);
+        $entityManager->flush();
+
+        $this->addFlash('success', "l'article a bien été supprimé de la base de données");
+        return $this->redirectToRoute('show_trash');
+    }
 } # end class
