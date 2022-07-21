@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use DateTime;
 use App\Entity\Article;
+use App\Entity\Category;
 use App\Form\ArticleFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,8 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -41,7 +42,7 @@ class AdminController extends AbstractController
         }
 
             $articles = $entityManager->getRepository(Article::class)->findBy(['deletedAt' => null]);
-            $categories = $entityManager->getRepository(Category::class)->findAll( admin controller);
+            $categories = $entityManager->getRepository(Category::class)->findAll();
 
             return $this->render("admin/show_dashboard.html.twig", [
               'articles' => $articles,
@@ -130,7 +131,6 @@ class AdminController extends AbstractController
       if($form->isSubmitted() && $form->isValid()) {
 
 
-          $article->setCreatedAt(new DateTime());
           $article->setUpdatedAt(new DateTime());
 
           # L'alias sera utilisé dans l'url (comme FranceTvInfo) et donc doit être assaini de tout accents et espaces.
@@ -191,7 +191,7 @@ class AdminController extends AbstractController
 
         $this->addFlash('success', "L'article a bien été archivé.");
         return $this->redirectToRoute('show_dashboard');
-    }# end fucntion sofdelete
+    }# end fucntion sofDelete
 
     /**
      * @Route("/restaurer-un-article_{id}", name="restore_article", methods={"GET"})

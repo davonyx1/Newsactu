@@ -22,8 +22,8 @@
             <h2 class="text-center"> Tous les articles archivés</h2>
         
             <table class="table">
-                <thead>
-                    <tr>
+              <thead>
+                <tr>
                     <th>#</th>
                     <th>Titre</th>
                     <th>Contenu</th>
@@ -32,8 +32,8 @@
                     <th>Modifié le</th>
                     <th>Actions</th>
                 </tr>
-                </thead>
-                <tbody>
+              </thead>
+              <tbody>
                 {% for article in archivedArticles %}
                     <tr>
                         <td>{{ article.id }}</td>
@@ -52,14 +52,14 @@
                        <td colspan="7" class="bg-warning text-center">Aucun article dans la poubelle</td>
                     </tr>
                 {% endfor %}
-                </tbody>
+              </tbody>
             </table>
 
         </div>
     </div>
 
     
-    </div>
+    
 
 
 

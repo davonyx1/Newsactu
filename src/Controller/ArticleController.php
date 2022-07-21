@@ -26,7 +26,7 @@ class ArticleController extends AbstractController
      */
     public function showArticleFromCategory(Category $category, EntityManagerInterface $entityManager): Response
     {
-        $articles = $entityManager->getRepository(Atricle::class)
+        $articles = $entityManager->getRepository(Article::class)
         ->findBy([
             'category' => $category->getId(),
             'deletedAt' => null        
