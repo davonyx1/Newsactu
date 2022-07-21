@@ -41,9 +41,11 @@ class AdminController extends AbstractController
         }
 
             $articles = $entityManager->getRepository(Article::class)->findBy(['deletedAt' => null]);
+            $categories = $entityManager->getRepository(Category::class)->findAll( admin controller);
 
             return $this->render("admin/show_dashboard.html.twig", [
-              'articles' => $articles
+              'articles' => $articles,
+              'categories' => $categories
             ]);
       }
       /**
