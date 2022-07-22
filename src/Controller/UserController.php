@@ -90,10 +90,10 @@ class UserController extends AbstractController
 
             $entityManager->persist($user);
             $entityManager->flush();
-        }
+        
             $this->addFlash('success','votre mot de passe a bien été changé');
             return$this->redirectToRoute('show_profile');
-
+        }
         return $this->render('user/change_password.html.twig', [
             'form'=> $form->createView(),
             
